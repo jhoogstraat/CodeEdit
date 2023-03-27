@@ -63,7 +63,8 @@ final class OutlineViewController: NSViewController {
         self.outlineView.menu = OutlineMenu(sender: self.outlineView)
         self.outlineView.menu?.delegate = self
         self.outlineView.doubleAction = #selector(onItemDoubleClicked)
-
+        self.outlineView.allowsMultipleSelection = true
+        
         let column = NSTableColumn(identifier: .init(rawValue: "Cell"))
         column.title = "Cell"
         outlineView.addTableColumn(column)
@@ -266,6 +267,10 @@ extension OutlineViewController: NSOutlineViewDelegate {
 
     func outlineViewSelectionDidChange(_ notification: Notification) {
         guard let outlineView = notification.object as? NSOutlineView else {
+            return
+        }
+
+        guard outlineView.selectedRowIndexes.count == 1 else {
             return
         }
 
