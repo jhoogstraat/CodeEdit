@@ -58,6 +58,7 @@ final class ProjectNavigatorViewController: NSViewController {
         self.outlineView.headerView = nil
         self.outlineView.menu = ProjectNavigatorMenu(sender: self.outlineView)
         self.outlineView.menu?.delegate = self
+        self.outlineView.allowsMultipleSelection = true
         self.outlineView.doubleAction = #selector(onItemDoubleClicked)
 
         let column = NSTableColumn(identifier: .init(rawValue: "Cell"))
@@ -185,7 +186,14 @@ extension ProjectNavigatorViewController: NSOutlineViewDataSource {
         childIndex index: Int
     ) -> Bool {
         guard let pasteboardItems = info.draggingPasteboard.readObjects(forClasses: [NSURL.self]) else { return false }
-        let fileItemURLS = pasteboardItems.compactMap { $0 as? URL }
+        let fileItemURLS: [URL] = pasteboardItems
+            .compactMap { $0 as? URL }
+            .sorted(by: { $0.relativePath < $1.relativePath })
+            .reduce(into: []) { urls, itemURL in
+                if urls.isEmpty || !itemURL.relativePath.hasPrefix(urls.last!.relativePath) {
+                    urls.append(itemURL)
+                }
+            }
 
         guard let fileItemDestination = item as? CEWorkspaceFile else { return false }
         let destParentURL = fileItemDestination.url
@@ -266,6 +274,10 @@ extension ProjectNavigatorViewController: NSOutlineViewDelegate {
 
     func outlineViewSelectionDidChange(_ notification: Notification) {
         guard let outlineView = notification.object as? NSOutlineView else {
+            return
+        }
+
+        guard outlineView.selectedRowIndexes.count == 1 else {
             return
         }
 
