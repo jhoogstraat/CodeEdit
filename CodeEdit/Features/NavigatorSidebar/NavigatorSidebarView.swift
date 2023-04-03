@@ -29,6 +29,8 @@ struct NavigatorSidebarView: View {
                 SourceControlNavigatorView()
             case 2:
                 FindNavigatorView()
+            case 7:
+                ExtensionNavigatorView()
             default:
                 Spacer()
             }
@@ -44,6 +46,8 @@ struct NavigatorSidebarView: View {
                     NavigatorSidebarToolbarBottom()
                 case 1:
                     SourceControlToolbarBottom()
+                case 7:
+                    EmptyView()
                 default:
                     NavigatorSidebarToolbarBottom()
                 }
